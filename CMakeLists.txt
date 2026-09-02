@@ -8,3 +8,11 @@ set(CMAKE_CUDA_STANDARD 17)
 add_executable(cuda_check
     src/cuda-check.cu
 )
+
+add_executable(image_pipeline
+    src/main.cpp
+)
+
+target_include_directories(image_pipeline PRIVATE
+    third_party/stb
+)
