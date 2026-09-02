@@ -11,8 +11,10 @@ add_executable(cuda_check
 
 add_executable(image_pipeline
     src/main.cpp
+    src/cpu/grayscale.cpp
 )
 
 target_include_directories(image_pipeline PRIVATE
+    include
     third_party/stb
 )
