@@ -34,6 +34,8 @@ int main()
 	std::vector<unsigned char> grayscale_cuda_output(width * height);
 	std::vector<unsigned char> blur_cpu_output(width * height);
 	std::vector<unsigned char> blur_cuda_output(width * height);
+	std::vector<unsigned char> sobel_cpu_output(width * height);
+	std::vector<unsigned char> sobel_cuda_output(width * height);
 
 	grayscale_cpu(image, grayscale_cpu_output.data(), width, height);
 
@@ -42,6 +44,10 @@ int main()
 	gaussian_blur_cpu(grayscale_cpu_output.data(), blur_cpu_output.data(), width, height);
 
 	gaussian_blur_cuda(grayscale_cuda_output.data(), blur_cuda_output.data(), width, height);
+
+	sobel_cpu(blur_cpu_output.data(), sobel_cpu_output.data(), width, height);
+
+	sobel_cuda(blur_cuda_output.data(), sobel_cuda_output.data(), width, height);
 
 	int mismatches = 0;
 	int max_difference = 0;
@@ -129,6 +135,49 @@ int main()
 	}
 
 	std::cout << "CUDA Gaussian blur image saved successfully\n";
+
+	int sobel_mismatches = 0;
+	int sobel_max_difference = 0;
+
+	for (int pixel = 0; pixel < width * height; pixel++)
+	{
+		int difference = std::abs(static_cast<int>(sobel_cpu_output[pixel]) - static_cast<int>(sobel_cuda_output[pixel]));
+
+		if (difference > 1)
+		{
+			sobel_mismatches++;
+		}
+
+		if (difference > sobel_max_difference)
+		{
+			sobel_max_difference = difference;
+		}
+	}
+
+	std::cout << "CPU/GPU Sobel mismatches: " << sobel_mismatches << '\n';
+	std::cout << "Maximum Sobel pixel difference: " << sobel_max_difference << '\n';
+
+	int sobel_cpu_success = stbi_write_png("../images/output/sobel_cpu.png", width, height, 1, sobel_cpu_output.data(), width);
+
+	if (sobel_cpu_success == 0)
+	{
+		std::cerr << "Failed to save CPU Sobel image\n";
+		stbi_image_free(image);
+		return 1;
+	}
+
+	std::cout << "CPU Sobel image saved successfully\n";
+
+	int sobel_cuda_success = stbi_write_png("../images/output/sobel_cuda.png", width, height, 1, sobel_cuda_output.data(), width);
+
+	if (sobel_cuda_success == 0)
+	{
+		std::cerr << "Failed to save CUDA Sobel image\n";
+		stbi_image_free(image);
+		return 1;
+	}
+
+	std::cout << "CUDA Sobel image saved successfully\n";
 
 	stbi_image_free(image);
 

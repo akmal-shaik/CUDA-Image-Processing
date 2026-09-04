@@ -6,10 +6,18 @@ void grayscale_cuda(
 	int width,
 	int height
 );
+
 void gaussian_blur_cuda(
 	const unsigned char* input,
 	unsigned char* output,
 	int width,
 	int height
 );
-	
+
+void sobel_cuda(
+	const unsigned char* input,
+	unsigned char* output,
+	int width,
+	int height
+);	
+
