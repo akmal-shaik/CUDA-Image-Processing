@@ -13,118 +13,124 @@
 
 int main()
 {
-    int width;
-    int height;
-    int channels;
+	int width;
+	int height;
+	int channels;
 
-    // Load the input image and force it into 3-channel RGB format.
-    unsigned char* image = stbi_load(
-        "../images/input/test.jpg",
-        &width,
-        &height,
-        &channels,
-        3
-    );
+	unsigned char* image = stbi_load("../images/input/test.jpg", &width, &height, &channels, 3);
 
-    if (image == nullptr)
-    {
-        std::cerr << "Failed to load image\n";
-        return 1;
-    }
+	if (image == nullptr)
+	{
+		std::cerr << "Failed to load image\n";
+		return 1;
+	}
 
-    std::cout << "Image loaded successfully\n";
-    std::cout << "Width: " << width << '\n';
-    std::cout << "Height: " << height << '\n';
-    std::cout << "Original channels: " << channels << '\n';
+	std::cout << "Image loaded successfully\n";
+	std::cout << "Width: " << width << '\n';
+	std::cout << "Height: " << height << '\n';
+	std::cout << "Original channels: " << channels << '\n';
 
-    // Create separate output buffers for CPU and CUDA results.
-    std::vector<unsigned char> grayscale_cpu_output(width * height);
-    std::vector<unsigned char> grayscale_cuda_output(width * height);
+	std::vector<unsigned char> grayscale_cpu_output(width * height);
+	std::vector<unsigned char> grayscale_cuda_output(width * height);
+	std::vector<unsigned char> blur_cpu_output(width * height);
+	std::vector<unsigned char> blur_cuda_output(width * height);
 
-    // Run sequential CPU grayscale.
-    grayscale_cpu(
-        image,
-        grayscale_cpu_output.data(),
-        width,
-        height
-    );
+	grayscale_cpu(image, grayscale_cpu_output.data(), width, height);
 
-    // Run CUDA grayscale.
-    grayscale_cuda(
-        image,
-        grayscale_cuda_output.data(),
-        width,
-        height
-    );
+	grayscale_cuda(image, grayscale_cuda_output.data(), width, height);
 
-    // Compare CPU and GPU outputs.
-    int mismatches = 0;
-    int max_difference = 0;
+	gaussian_blur_cpu(grayscale_cpu_output.data(), blur_cpu_output.data(), width, height);
 
-    for (int pixel = 0; pixel < width * height; pixel++)
-    {
-        int difference = std::abs(
-            static_cast<int>(grayscale_cpu_output[pixel]) -
-            static_cast<int>(grayscale_cuda_output[pixel])
-        );
+	gaussian_blur_cuda(grayscale_cuda_output.data(), blur_cuda_output.data(), width, height);
 
-        if (difference > 1)
-        {
-            mismatches++;
-        }
+	int mismatches = 0;
+	int max_difference = 0;
 
-        if (difference > max_difference)
-        {
-            max_difference = difference;
-        }
-    }
+	for (int pixel = 0; pixel < width * height; pixel++)
+	{
+		int difference = std::abs(static_cast<int>(grayscale_cpu_output[pixel]) - static_cast<int>(grayscale_cuda_output[pixel]));
 
-    std::cout << "CPU/GPU mismatches: "
-              << mismatches << '\n';
+		if (difference > 1)
+		{
+			mismatches++;
+		}
 
-    std::cout << "Maximum pixel difference: "
-              << max_difference << '\n';
+		if (difference > max_difference)
+		{
+			max_difference = difference;
+		}
+	}
 
-    // Save CPU grayscale image.
-    int cpu_success = stbi_write_png(
-        "../images/output/grayscale_cpu.png",
-        width,
-        height,
-        1,
-        grayscale_cpu_output.data(),
-        width
-    );
+	std::cout << "CPU/GPU grayscale mismatches: " << mismatches << '\n';
+	std::cout << "Maximum grayscale pixel difference: " << max_difference << '\n';
 
-    if (cpu_success == 0)
-    {
-        std::cerr << "Failed to save CPU grayscale image\n";
-        stbi_image_free(image);
-        return 1;
-    }
+	int cpu_success = stbi_write_png("../images/output/grayscale_cpu.png", width, height, 1, grayscale_cpu_output.data(), width);
 
-    std::cout << "CPU grayscale image saved successfully\n";
+	if (cpu_success == 0)
+	{
+		std::cerr << "Failed to save CPU grayscale image\n";
+		stbi_image_free(image);
+		return 1;
+	}
 
-    // Save CUDA grayscale image.
-    int cuda_success = stbi_write_png(
-        "../images/output/grayscale_cuda.png",
-        width,
-        height,
-        1,
-        grayscale_cuda_output.data(),
-        width
-    );
+	std::cout << "CPU grayscale image saved successfully\n";
 
-    if (cuda_success == 0)
-    {
-        std::cerr << "Failed to save CUDA grayscale image\n";
-        stbi_image_free(image);
-        return 1;
-    }
+	int cuda_success = stbi_write_png("../images/output/grayscale_cuda.png", width, height, 1, grayscale_cuda_output.data(), width);
 
-    std::cout << "CUDA grayscale image saved successfully\n";
+	if (cuda_success == 0)
+	{
+		std::cerr << "Failed to save CUDA grayscale image\n";
+		stbi_image_free(image);
+		return 1;
+	}
 
-    // Free memory allocated by stb_image.
-    stbi_image_free(image);
+	std::cout << "CUDA grayscale image saved successfully\n";
 
-    return 0;
+
+	int blur_mismatches = 0;
+	int blur_max_difference = 0;
+
+	for (int pixel = 0; pixel < width * height; pixel++)
+	{
+		int difference = std::abs(static_cast<int>(blur_cpu_output[pixel]) - static_cast<int>(blur_cuda_output[pixel]));
+
+		if (difference > 1)
+		{
+			blur_mismatches++;
+		}
+
+		if (difference > blur_max_difference)
+		{
+			blur_max_difference = difference;
+		}
+	}
+
+	std::cout << "CPU/GPU blur mismatches: " << blur_mismatches << '\n';
+	std::cout << "Maximum blur pixel difference: " << blur_max_difference << '\n';
+
+	int blur_success = stbi_write_png("../images/output/blur_cpu.png", width, height, 1, blur_cpu_output.data(), width);
+
+	if (blur_success == 0)
+	{
+		std::cerr << "Failed to save CPU Gaussian blur image\n";
+		stbi_image_free(image);
+		return 1;
+	}
+
+	std::cout << "CPU Gaussian blur image saved successfully\n";
+
+	int blur_cuda_success = stbi_write_png("../images/output/blur_cuda.png", width, height, 1, blur_cuda_output.data(), width);
+
+	if (blur_cuda_success == 0)
+	{
+		std::cerr << "Failed to save CUDA Gaussian blur image\n";
+		stbi_image_free(image);
+		return 1;
+	}
+
+	std::cout << "CUDA Gaussian blur image saved successfully\n";
+
+	stbi_image_free(image);
+
+	return 0;
 }

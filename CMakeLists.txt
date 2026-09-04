@@ -12,7 +12,9 @@ add_executable(cuda_check
 add_executable(image_pipeline
     src/main.cpp
     src/cpu/grayscale.cpp
+    src/cpu/gaussian_blur.cpp
     src/cuda/grayscale.cu
+    src/cuda/gaussian_blur.cu
 )
 
 target_include_directories(image_pipeline PRIVATE
