@@ -46,6 +46,8 @@ add_executable(profile_pipeline
 	src/cuda/gaussian_blur.cu
 	src/cuda/sobel.cu
 	src/cuda/pipeline.cu
+	src/cuda/gaussian_blur_shared.cu
+	src/cuda/gaussian_blur_separable.cu
 )
 
 target_include_directories(profile_pipeline PRIVATE

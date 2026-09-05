@@ -50,3 +50,18 @@ void run_cuda_pipeline(
 	float* kernel_ms,
 	double* end_to_end_ms
 );
+
+void launch_gaussian_blur_shared_kernel(
+	const unsigned char* device_input,
+	unsigned char* device_output,
+	int width,
+	int height
+);
+
+void launch_gaussian_blur_separable_kernel(
+	const unsigned char* device_input,
+	int* device_temp,
+	unsigned char* device_output,
+	int width,
+	int height
+);
