@@ -65,6 +65,23 @@ __global__ void sobel_kernel(
 	output[output_index] = static_cast<unsigned char>(magnitude);
 }
 
+void launch_sobel_kernel(
+	const unsigned char* device_input,
+	unsigned char* device_output,
+	int width,
+	int height
+)
+{
+	dim3 threads_per_block(16, 16);
+
+	dim3 blocks(
+		(width + threads_per_block.x - 1) / threads_per_block.x,
+		(height + threads_per_block.y - 1) / threads_per_block.y
+	);
+
+	sobel_kernel<<<blocks, threads_per_block>>>(device_input, device_output, width, height);
+}
+
 void sobel_cuda(
 	const unsigned char* input,
 	unsigned char* output,
@@ -90,12 +107,7 @@ void sobel_cuda(
 		(height + threads_per_block.y - 1) / threads_per_block.y
 	);
 
-	sobel_kernel<<<blocks, threads_per_block>>>(
-		device_input,
-		device_output,
-		width,
-		height
-	);
+	launch_sobel_kernel(device_input, device_output, width, height);
 
 	cudaDeviceSynchronize();
 

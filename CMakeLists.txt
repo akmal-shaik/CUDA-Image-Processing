@@ -17,9 +17,25 @@ add_executable(image_pipeline
     src/cuda/grayscale.cu
     src/cuda/gaussian_blur.cu
     src/cuda/sobel.cu
+    src/cuda/pipeline.cu
 )
 
 target_include_directories(image_pipeline PRIVATE
     include
     third_party/stb
+)
+
+add_executable(benchmark_pipeline
+	src/benchmark.cpp
+	src/cpu/grayscale.cpp
+	src/cpu/gaussian_blur.cpp
+	src/cpu/sobel.cpp
+	src/cuda/grayscale.cu
+	src/cuda/gaussian_blur.cu
+	src/cuda/sobel.cu
+	src/cuda/pipeline.cu
+)
+
+target_include_directories(benchmark_pipeline PRIVATE
+	include
 )

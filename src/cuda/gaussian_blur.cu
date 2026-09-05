@@ -50,6 +50,23 @@ __global__ void gaussian_blur_kernel(
 	output[output_index] = static_cast<unsigned char>(sum / 256);
 }
 
+void launch_gaussian_blur_kernel(
+	const unsigned char* device_input,
+	unsigned char* device_output,
+	int width,
+	int height
+)
+{
+	dim3 threads_per_block(16, 16);
+
+	dim3 blocks(
+		(width + threads_per_block.x - 1) / threads_per_block.x,
+		(height + threads_per_block.y - 1) / threads_per_block.y
+	);
+
+	gaussian_blur_kernel<<<blocks, threads_per_block>>>(device_input, device_output, width, height);
+}
+
 void gaussian_blur_cuda(
 	const unsigned char* input,
 	unsigned char* output,
@@ -75,12 +92,7 @@ void gaussian_blur_cuda(
 		(height + threads_per_block.y - 1) / threads_per_block.y
 	);
 
-	gaussian_blur_kernel<<<blocks, threads_per_block>>>(
-		device_input,
-		device_output,
-		width,
-		height
-	);
+	launch_gaussian_blur_kernel(device_input, device_output, width, height);
 
 	cudaDeviceSynchronize();
 

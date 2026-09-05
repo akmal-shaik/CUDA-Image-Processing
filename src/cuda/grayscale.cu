@@ -24,6 +24,20 @@ __global__ void grayscale_kernel(
         }
 }
 
+void launch_grayscale_kernel(
+	const unsigned char* device_input,
+	unsigned char* device_output,
+	int width,
+	int height
+)
+{
+	int num_pixels = width * height;
+	int threads_per_block = 256;
+	int blocks = (num_pixels + threads_per_block - 1) / threads_per_block;
+
+	grayscale_kernel<<<blocks, threads_per_block>>>(device_input, device_output, num_pixels);
+}
+
 void grayscale_cuda(
 	const unsigned char* input,
 	unsigned char* output,
@@ -50,15 +64,7 @@ void grayscale_cuda(
 	    cudaMemcpyHostToDevice
 	);
 
-	int threads_per_block = 256;
-
-	int blocks = (num_pixels + threads_per_block - 1) / threads_per_block;
-
-	grayscale_kernel<<<blocks, threads_per_block>>>(
-	    device_input,
-	    device_output,
-	    num_pixels
-	);
+	launch_grayscale_kernel(device_input, device_output, width, height);
 
 	cudaDeviceSynchronize();
 

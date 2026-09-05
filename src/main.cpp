@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
+#include <chrono>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -44,6 +45,10 @@ int main()
 	std::vector<unsigned char> blur_cuda_isolated(width * height);
 	std::vector<unsigned char> sobel_cuda_isolated(width * height);
 
+	std::vector<unsigned char> cuda_pipeline_output(width * height);
+
+	auto cpu_start = std::chrono::steady_clock::now();
+
 	// Complete CPU and CUDA pipelines
 	grayscale_cpu(image, greyscale_cpu_output.data(), width, height);
 	grayscale_cuda(image, greyscale_cuda_output.data(), width, height);
@@ -54,9 +59,49 @@ int main()
 	sobel_cpu(blur_cpu_output.data(), sobel_cpu_output.data(), width, height);
 	sobel_cuda(blur_cuda_output.data(), sobel_cuda_output.data(), width, height);
 
+	auto cpu_stop = std::chrono::steady_clock::now();
+	double cpu_ms = std::chrono::duration<double, std::milli>(cpu_stop - cpu_start).count();
+
 	// Isolated CUDA tests using the same CPU-generated input
 	gaussian_blur_cuda(greyscale_cpu_output.data(), blur_cuda_isolated.data(), width, height);
 	sobel_cuda(blur_cpu_output.data(), sobel_cuda_isolated.data(), width, height);
+
+	float gpu_kernel_ms = 0.0f;
+	double gpu_end_to_end_ms = 0.0;
+
+	run_cuda_pipeline(
+		image,
+		cuda_pipeline_output.data(),
+		width,
+		height,
+		&gpu_kernel_ms,
+		&gpu_end_to_end_ms
+	);
+
+	int cuda_pipeline_mismatches = 0;
+	int cuda_pipeline_max_difference = 0;
+
+	for (int pixel = 0; pixel < width * height; pixel++)
+	{
+		int difference = std::abs(static_cast<int>(sobel_cuda_output[pixel]) - static_cast<int>(cuda_pipeline_output[pixel]));
+
+		if (difference > 0)
+		{
+			cuda_pipeline_mismatches++;
+		}
+
+		if (difference > cuda_pipeline_max_difference)
+		{
+			cuda_pipeline_max_difference = difference;
+		}
+	}
+
+	std::cout << "\n=== Device-Resident CUDA Pipeline Validation ===\n";
+	std::cout << "Mismatches: " << cuda_pipeline_mismatches << '\n';
+	std::cout << "Max difference: " << cuda_pipeline_max_difference << '\n';
+
+	double kernel_speedup = cpu_ms / gpu_kernel_ms;
+	double end_to_end_speedup = cpu_ms / gpu_end_to_end_ms;
 
 	// Greyscale validation
 	int greyscale_mismatches = 0;
@@ -150,6 +195,13 @@ int main()
 
 	std::cout << "Pipeline mismatches (>1): " << pipeline_mismatches << '\n';
 	std::cout << "Pipeline max difference: " << pipeline_max_difference << '\n';
+
+	std::cout << "\n=== Performance ===\n";
+	std::cout << "CPU pipeline: " << cpu_ms << " ms\n";
+	std::cout << "GPU kernels only: " << gpu_kernel_ms << " ms\n";
+	std::cout << "GPU end-to-end: " << gpu_end_to_end_ms << " ms\n";
+	std::cout << "Kernel speed-up: " << kernel_speedup << "x\n";
+	std::cout << "End-to-end speed-up: " << end_to_end_speedup << "x\n";
 
 	// Save CPU greyscale image
 	int cpu_success = stbi_write_png("../images/output/grayscale_cpu.png", width, height, 1, greyscale_cpu_output.data(), width);
