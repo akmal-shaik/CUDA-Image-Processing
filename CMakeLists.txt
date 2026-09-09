@@ -11,10 +11,10 @@ add_executable(cuda_check
 
 add_executable(image_pipeline
 	src/main.cpp
-	src/cpu/grayscale.cpp
+	src/cpu/greyscale.cpp
 	src/cpu/gaussian_blur.cpp
 	src/cpu/sobel.cpp
-	src/cuda/grayscale.cu
+	src/cuda/greyscale.cu
 	src/cuda/gaussian_blur.cu
 	src/cuda/sobel.cu
 	src/cuda/pipeline.cu
@@ -27,10 +27,10 @@ target_include_directories(image_pipeline PRIVATE
 
 add_executable(benchmark_pipeline
 	src/benchmark.cpp
-	src/cpu/grayscale.cpp
+	src/cpu/greyscale.cpp
 	src/cpu/gaussian_blur.cpp
 	src/cpu/sobel.cpp
-	src/cuda/grayscale.cu
+	src/cuda/greyscale.cu
 	src/cuda/gaussian_blur.cu
 	src/cuda/sobel.cu
 	src/cuda/pipeline.cu
@@ -42,7 +42,7 @@ target_include_directories(benchmark_pipeline PRIVATE
 
 add_executable(profile_pipeline
 	src/profile.cu
-	src/cuda/grayscale.cu
+	src/cuda/greyscale.cu
 	src/cuda/gaussian_blur.cu
 	src/cuda/sobel.cu
 	src/cuda/pipeline.cu

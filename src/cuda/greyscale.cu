@@ -1,7 +1,7 @@
 #include "cuda_filters.cuh"
 #include <cuda_runtime.h>
 
-__global__ void grayscale_kernel(
+__global__ void greyscale_kernel(
 	const unsigned char* input,
 	unsigned char* output,
 	int num_pixels
@@ -18,13 +18,13 @@ __global__ void grayscale_kernel(
     	const int g = input[rgb_index + 1];
     	const int b = input[rgb_index + 2];
 
-    	float grayscale = 0.299f * r + 0.587f * g + 0.114f * b;
+		float greyscale = 0.299f * r + 0.587f * g + 0.114f * b;
 
-    	output[pixel] = static_cast<unsigned char>(grayscale);
+		output[pixel] = static_cast<unsigned char>(greyscale);
         }
 }
 
-void launch_grayscale_kernel(
+void launch_greyscale_kernel(
 	const unsigned char* device_input,
 	unsigned char* device_output,
 	int width,
@@ -35,10 +35,10 @@ void launch_grayscale_kernel(
 	int threads_per_block = 256;
 	int blocks = (num_pixels + threads_per_block - 1) / threads_per_block;
 
-	grayscale_kernel<<<blocks, threads_per_block>>>(device_input, device_output, num_pixels);
+	greyscale_kernel<<<blocks, threads_per_block>>>(device_input, device_output, num_pixels);
 }
 
-void grayscale_cuda(
+void greyscale_cuda(
 	const unsigned char* input,
 	unsigned char* output,
 	int width,
@@ -64,7 +64,7 @@ void grayscale_cuda(
 	    cudaMemcpyHostToDevice
 	);
 
-	launch_grayscale_kernel(device_input, device_output, width, height);
+	launch_greyscale_kernel(device_input, device_output, width, height);
 
 	cudaDeviceSynchronize();
 

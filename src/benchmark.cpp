@@ -61,7 +61,7 @@ int main()
 		}
 
 		// Warm-up CPU.
-		grayscale_cpu(input.data(), greyscale_cpu_output.data(), width, height);
+		greyscale_cpu(input.data(), greyscale_cpu_output.data(), width, height);
 		gaussian_blur_cpu(greyscale_cpu_output.data(), blur_cpu_output.data(), width, height);
 		sobel_cpu(blur_cpu_output.data(), sobel_cpu_output.data(), width, height);
 
@@ -87,7 +87,7 @@ int main()
 		{
 			auto start = std::chrono::steady_clock::now();
 
-			grayscale_cpu(input.data(), greyscale_cpu_output.data(), width, height);
+			greyscale_cpu(input.data(), greyscale_cpu_output.data(), width, height);
 			gaussian_blur_cpu(greyscale_cpu_output.data(), blur_cpu_output.data(), width, height);
 			sobel_cpu(blur_cpu_output.data(), sobel_cpu_output.data(), width, height);
 

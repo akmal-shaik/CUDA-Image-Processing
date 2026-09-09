@@ -1,6 +1,6 @@
 #pragma once
 
-void grayscale_cuda(
+void greyscale_cuda(
 	const unsigned char* input,
 	unsigned char* output,
 	int width,
@@ -21,7 +21,7 @@ void sobel_cuda(
 	int height
 );	
 
-void launch_grayscale_kernel(
+void launch_greyscale_kernel(
 	const unsigned char* device_input,
 	unsigned char* device_output,
 	int width,

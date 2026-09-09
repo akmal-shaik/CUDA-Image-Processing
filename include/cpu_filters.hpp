@@ -1,6 +1,6 @@
 #pragma once
 
-void grayscale_cpu(
+void greyscale_cpu(
     const unsigned char* input,
     unsigned char* output,
     int width,

@@ -60,7 +60,7 @@ int main()
 	cudaMemcpy(device_rgb, input.data(), rgb_bytes, cudaMemcpyHostToDevice);
 
 	// Generate one identical greyscale input for every blur implementation.
-	launch_grayscale_kernel(device_rgb, device_greyscale, width, height);
+	launch_greyscale_kernel(device_rgb, device_greyscale, width, height);
 	cudaDeviceSynchronize();
 
 	// Warm-up.

@@ -1,6 +1,6 @@
 #include "cpu_filters.hpp"
 
-void grayscale_cpu(
+void greyscale_cpu(
     const unsigned char* input,
     unsigned char* output,
     int width,
@@ -17,8 +17,8 @@ void grayscale_cpu(
     	const int g = input[rgb_index + 1];
     	const int b = input[rgb_index + 2];
 
-    	float grayscale = 0.299f * r + 0.587f * g + 0.114f * b;
+        float greyscale = 0.299f * r + 0.587f * g + 0.114f * b;
 
-    	output[pixel] = static_cast<unsigned char>(grayscale);
+        output[pixel] = static_cast<unsigned char>(greyscale);
     }
 }

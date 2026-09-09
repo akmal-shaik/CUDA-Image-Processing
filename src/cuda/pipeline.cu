@@ -38,7 +38,7 @@ void run_cuda_pipeline(
 
 	cudaEventRecord(start_event);
 
-	launch_grayscale_kernel(device_rgb, device_greyscale, width, height);
+	launch_greyscale_kernel(device_rgb, device_greyscale, width, height);
 	launch_gaussian_blur_kernel(device_greyscale, device_blur, width, height);
 	launch_sobel_kernel(device_blur, device_sobel, width, height);
 

@@ -50,8 +50,8 @@ int main()
 	auto cpu_start = std::chrono::steady_clock::now();
 
 	// Complete CPU and CUDA pipelines
-	grayscale_cpu(image, greyscale_cpu_output.data(), width, height);
-	grayscale_cuda(image, greyscale_cuda_output.data(), width, height);
+	greyscale_cpu(image, greyscale_cpu_output.data(), width, height);
+	greyscale_cuda(image, greyscale_cuda_output.data(), width, height);
 
 	gaussian_blur_cpu(greyscale_cpu_output.data(), blur_cpu_output.data(), width, height);
 	gaussian_blur_cuda(greyscale_cuda_output.data(), blur_cuda_output.data(), width, height);
@@ -204,7 +204,7 @@ int main()
 	std::cout << "End-to-end speed-up: " << end_to_end_speedup << "x\n";
 
 	// Save CPU greyscale image
-	int cpu_success = stbi_write_png("../images/output/grayscale_cpu.png", width, height, 1, greyscale_cpu_output.data(), width);
+	int cpu_success = stbi_write_png("../images/output/greyscale_cpu.png", width, height, 1, greyscale_cpu_output.data(), width);
 
 	if (cpu_success == 0)
 	{
@@ -216,7 +216,7 @@ int main()
 	std::cout << "\nCPU greyscale image saved successfully\n";
 
 	// Save CUDA greyscale image
-	int cuda_success = stbi_write_png("../images/output/grayscale_cuda.png", width, height, 1, greyscale_cuda_output.data(), width);
+	int cuda_success = stbi_write_png("../images/output/greyscale_cuda.png", width, height, 1, greyscale_cuda_output.data(), width);
 
 	if (cuda_success == 0)
 	{
