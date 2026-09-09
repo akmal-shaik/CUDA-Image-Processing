@@ -5,10 +5,6 @@ project(cuda_image_processing LANGUAGES CXX CUDA)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CUDA_STANDARD 17)
 
-add_executable(cuda_check
-	src/cuda-check.cu
-)
-
 add_executable(image_pipeline
 	src/main.cpp
 	src/cpu/greyscale.cpp
